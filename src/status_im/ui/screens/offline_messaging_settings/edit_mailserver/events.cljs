@@ -35,7 +35,7 @@
   {:db (update db :mailservers/manage assoc input-key {:value value
                                                        :error (if (= input-key :name)
                                                                 (string/blank? value)
-                                                                (not (utils.inbox/valid-enode-address? value)))})})
+                                                                (not (utils.inbox/valid-enode-with-password? value)))})})
 
 (handlers/register-handler-fx
  :save-new-mailserver

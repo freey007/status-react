@@ -10,11 +10,12 @@
 (spec/def :wnode/name ::not-blank-string)
 (spec/def :wnode/id ::not-blank-string)
 (spec/def :wnode/user-defined boolean?)
-(spec/def :wnode/password (spec/nilable string?))
+(spec/def :wnode/password ::not-blank-string)
+(spec/def :wnode/sym-key-id string?)
 (spec/def :wnode/wnode (allowed-keys :req-un [:wnode/address :wnode/name :wnode/id]
-                                     :opt-un [:wnode/user-defined :wnode/password]))
+                                     :opt-un [:wnode/sym-key-id
+                                              :wnode/user-defined
+                                              :wnode/password]))
 
-(spec/def :inbox/password ::not-blank-string)
 (spec/def :inbox/wnodes (spec/nilable (spec/map-of keyword? (spec/map-of :wnode/id :wnode/wnode))))
-(spec/def :inbox/sym-key-id string?)
 (spec/def :inbox/last-received integer?)

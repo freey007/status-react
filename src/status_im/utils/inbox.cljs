@@ -1,6 +1,8 @@
 (ns status-im.utils.inbox)
 
-(def enode-address-regex #"enode://[a-zA-Z0-9]+:?(.*)\@\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b:(\d{1,5})")
+(def enode-address-regex #"enode://[a-zA-Z0-9]+\@\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b:(\d{1,5})")
+
+(def enode-with-password-regex #"enode://[a-zA-Z0-9]+:(.+)\@\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b:(\d{1,5})")
 
 (defn- extract-url-components [address]
   (rest (re-matches #"enode://(.*?):(.*)@(.*)" address)))
@@ -15,3 +17,6 @@
 
 (defn valid-enode-address? [address]
   (re-matches enode-address-regex address))
+
+(defn valid-enode-with-password? [address]
+  (re-matches enode-with-password-regex address))
