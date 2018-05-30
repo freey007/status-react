@@ -15,6 +15,7 @@
 
 (def spam-interval-ms 1000)
 (def default-cooldown-period-ms 10000)
+(def cooldown-reset-threshold 3)
 (def cooldown-periods-ms
   {1 2000
    2 5000

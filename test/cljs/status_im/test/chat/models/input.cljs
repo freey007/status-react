@@ -1,5 +1,6 @@
 (ns status-im.test.chat.models.input
   (:require [cljs.test :refer-macros [deftest is testing]]
+            [status-im.chat.constants :as constants]
             [status-im.utils.datetime :as datetime]
             [status-im.chat.models.input :as input]))
 
@@ -192,7 +193,7 @@
                                                :chat/cooldowns 1
                                                :chat/send-button-disabled? true)
                         :dispatch-later [{:dispatch [:enable-send-button]
-                                          :ms       2000}]}
+                                          :ms       (constants/cooldown-periods-ms 1)}]}
               actual (input/process-cooldown {:db db})]
           (is (= expected actual))))
 
@@ -203,6 +204,17 @@
                                                :chat/cooldowns 2
                                                :chat/send-button-disabled? true)
                         :dispatch-later [{:dispatch [:enable-send-button]
-                                          :ms       5000}]}
+                                          :ms       (constants/cooldown-periods-ms 2)}]}
+              actual (input/process-cooldown {:db db})]
+          (is (= expected actual))))
+
+      (testing "spamming reaching cooldown threshold"
+        (let [db (assoc db :chat/cooldowns (dec constants/cooldown-reset-threshold)
+                        :chat/last-outgoing-message-sent-at (- 1527675198542 900))
+              expected {:db             (assoc db :chat/last-outgoing-message-sent-at 1527675198542
+                                               :chat/cooldowns 0
+                                               :chat/send-button-disabled? true)
+                        :dispatch-later [{:dispatch [:enable-send-button]
+                                          :ms       (constants/cooldown-periods-ms 3)}]}
               actual (input/process-cooldown {:db db})]
           (is (= expected actual)))))))
