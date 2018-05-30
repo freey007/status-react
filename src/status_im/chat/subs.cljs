@@ -392,3 +392,16 @@
  :<- [:get-active-chats]
  (fn [chats _]
    (apply + (map #(count (:unviewed-messages %)) (vals chats)))))
+
+(reg-sub
+ :chat/send-button-disabled?
+ (fn [db]
+   (:chat/send-button-disabled? db)))
+
+(reg-sub
+ :send-button-disabled?
+ :<- [:get-current-chat]
+ :<- [:chat/send-button-disabled?]
+ (fn [[{:keys [group-chat]} disabled?]]
+   (and group-chat
+        disabled?)))

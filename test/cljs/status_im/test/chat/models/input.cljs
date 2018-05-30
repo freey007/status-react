@@ -1,5 +1,6 @@
 (ns status-im.test.chat.models.input
-  (:require [cljs.test :refer-macros [deftest is]]
+  (:require [cljs.test :refer-macros [deftest is testing]]
+            [status-im.utils.datetime :as datetime]
             [status-im.chat.models.input :as input]))
 
 (def fake-db
@@ -166,3 +167,42 @@
 
 (deftest modified-db-after-change
   "Just a combination of db modifications. Can be skipped now")
+
+(deftest process-cooldown-fx
+  (let [db {:current-chat-id            "chat"
+            :chats                      {"chat" {:group-chat true}}
+            :chat/cooldowns             0
+            :chat/send-button-disabled? false}]
+    (with-redefs [datetime/timestamp (constantly 1527675198542)]
+      (testing "no spamming detected"
+        (let [expected {:db (assoc db :chat/last-outgoing-message-sent-at 1527675198542)}
+              actual (input/process-cooldown {:db db})]
+          (is (= expected actual))))
+
+      (testing "spamming detected in 1-1"
+        (let [db (assoc db :chats {"chat" {:group-chat false}}
+                        :chat/last-outgoing-message-sent-at (- 1527675198542 900))
+              expected nil
+              actual (input/process-cooldown {:db db})]
+          (is (= expected actual))))
+
+      (testing "spamming detected"
+        (let [db (assoc db :chat/last-outgoing-message-sent-at (- 1527675198542 900))
+              expected {:db             (assoc db :chat/last-outgoing-message-sent-at 1527675198542
+                                               :chat/cooldowns 1
+                                               :chat/send-button-disabled? true)
+                        :dispatch-later [{:dispatch [:enable-send-button]
+                                          :ms       2000}]}
+              actual (input/process-cooldown {:db db})]
+          (is (= expected actual))))
+
+      (testing "spamming detected twice"
+        (let [db (assoc db :chat/cooldowns 1
+                        :chat/last-outgoing-message-sent-at (- 1527675198542 900))
+              expected {:db             (assoc db :chat/last-outgoing-message-sent-at 1527675198542
+                                               :chat/cooldowns 2
+                                               :chat/send-button-disabled? true)
+                        :dispatch-later [{:dispatch [:enable-send-button]
+                                          :ms       5000}]}
+              actual (input/process-cooldown {:db db})]
+          (is (= expected actual)))))))

@@ -3,6 +3,7 @@
             [goog.object :as object]
             [status-im.chat.constants :as const]
             [status-im.chat.models.commands :as commands-model]
+            [status-im.utils.datetime :as datetime]
             [status-im.js-dependencies :as dependencies]
             [taoensso.timbre :as log]))
 
@@ -198,3 +199,22 @@
                         [(keyword (get-in params [i :name])) value]))
          (remove #(nil? (first %)))
          (into {}))))
+
+(defn- button-spamming? [last-sent-at]
+  (< (- (datetime/timestamp) last-sent-at)
+     const/spam-interval-ms))
+
+(defn- start-cooldown [{:keys [db]} cooldowns]
+  {:dispatch-later [{:dispatch [:enable-send-button]
+                     :ms       (const/cooldown-periods-ms cooldowns
+                                                          const/default-cooldown-period-ms)}]
+   :db             (assoc db
+                          :chat/cooldowns cooldowns
+                          :chat/send-button-disabled? true)})
+
+(defn process-cooldown [{{:keys [chat/last-outgoing-message-sent-at chat/cooldowns current-chat-id] :as db} :db}]
+  (when (get-in db [:chats current-chat-id :group-chat])
+    (cond-> {:db (assoc db :chat/last-outgoing-message-sent-at (datetime/timestamp))}
+
+      (button-spamming? last-outgoing-message-sent-at)
+      (start-cooldown (inc cooldowns)))))

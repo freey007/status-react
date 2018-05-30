@@ -18,36 +18,39 @@
             status-im.ui.screens.add-new.new-public-chat.db))
 
 ;; initial state of app-db
-(def app-db {:current-public-key          nil
-             :status-module-initialized?  (or platform/ios? js/goog.DEBUG)
-             :keyboard-height             0
-             :tab-bar-visible?            true
-             :navigation-stack            '()
-             :contacts/contacts           {}
-             :qr-codes                    {}
-             :group/selected-contacts     #{}
-             :chats                       {}
-             :current-chat-id             nil
-             :selected-participants       #{}
-             :discoveries                 {}
-             :discover-search-tags        #{}
-             :discover-current-dapp       {}
-             :tags                        []
-             :sync-state                  :done
-             :wallet.transactions         constants/default-wallet-transactions
-             :wallet-selected-asset       {}
-             :prices                      {}
-             :peers-count                 0
-             :peers-summary               []
-             :notifications               {}
-             :network                     constants/default-network
-             :networks/networks           constants/default-networks
-             :inbox/wnodes                constants/default-wnodes
-             :inbox/password              constants/inbox-password
-             :my-profile/editing?         false
-             :transport/chats             {}
-             :transport/message-envelopes {}
-             :desktop/desktop             {:tab-view-id :home}})
+(def app-db {:current-public-key                 nil
+             :status-module-initialized?         (or platform/ios? js/goog.DEBUG)
+             :keyboard-height                    0
+             :tab-bar-visible?                   true
+             :navigation-stack                   '()
+             :contacts/contacts                  {}
+             :qr-codes                           {}
+             :group/selected-contacts            #{}
+             :chats                              {}
+             :current-chat-id                    nil
+             :selected-participants              #{}
+             :discoveries                        {}
+             :discover-search-tags               #{}
+             :discover-current-dapp              {}
+             :tags                               []
+             :sync-state                         :done
+             :wallet.transactions                constants/default-wallet-transactions
+             :wallet-selected-asset              {}
+             :prices                             {}
+             :peers-count                        0
+             :peers-summary                      []
+             :notifications                      {}
+             :network                            constants/default-network
+             :networks/networks                  constants/default-networks
+             :inbox/wnodes                       constants/default-wnodes
+             :inbox/password                     constants/inbox-password
+             :my-profile/editing?                false
+             :transport/chats                    {}
+             :transport/message-envelopes        {}
+             :chat/cooldowns                     0
+             :chat/send-button-disabled?         false
+             :chat/last-outgoing-message-sent-at 0
+             :desktop/desktop                    {:tab-view-id :home}})
 
 ;;;;GLOBAL
 
@@ -181,6 +184,9 @@
                  :browser/options
                  :new/open-dapp
                  :navigation/screen-params
+                 :chat/cooldowns
+                 :chat/send-button-disabled?
+                 :chat/last-outgoing-message-sent-at
                  :transport/message-envelopes
                  :transport/chats
                  :transport/discovery-filter

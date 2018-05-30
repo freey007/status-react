@@ -20,3 +20,6 @@
 (s/def :chat/last-clock-value (s/nilable number?))                ; last logical clock value of messages in chat
 (s/def :chat/loaded-chats (s/nilable seq?))
 (s/def :chat/bot-db (s/nilable map?))
+(s/def :chat/cooldowns (s/nilable number?))                       ; number of cooldowns given for spamming send button
+(s/def :chat/send-button-disabled? (s/nilable boolean?))
+(s/def :chat/last-outgoing-message-sent-at (s/nilable number?))

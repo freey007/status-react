@@ -426,3 +426,9 @@
  [re-frame/trim-v]
  (fn [cofx [chat-id message-id]]
    (models.message/delete-message chat-id message-id cofx)))
+
+(handlers/register-handler-db
+ :enable-send-button
+ [re-frame/trim-v]
+ (fn [db]
+   (assoc db :chat/send-button-disabled? false)))
